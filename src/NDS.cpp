@@ -135,6 +135,8 @@ NDS::~NDS() noexcept
     UnregisterEventFuncs(Event_Div);
     UnregisterEventFuncs(Event_Sqrt);
     // The destructor for each component is automatically called by the compiler
+
+    DeleteAllBreakpoints();
 }
 
 
@@ -4403,6 +4405,38 @@ void NDS::ARM7IOWrite32(u32 addr, u32 val)
     }
 
     Log(LogLevel::Debug, "unknown ARM7 IO write32 %08X %08X %08X\n", addr, val, ARM7.R[15]);
+}
+
+void NDS::AddBreakpointCallback(u32* addresses, u8 addressCount, NDS::BreakpointCallbackDef&& func) {
+    BreakpointCallback = std::move(func);
+
+    DeleteAllBreakpoints();
+    BreakpointsCount = addressCount;
+    Breakpoints = new u32[addressCount];
+    const size_t size = addressCount * sizeof(u32);
+    memcpy_s(Breakpoints, size, (void*)addresses, size);
+}
+
+u32 NDS::HandleBreakpoint(u32 addr) {
+    if (BreakpointsCount == 0 || !BreakpointCallback) {
+        return 0;
+    }
+
+    for (u8 i = 0; i < BreakpointsCount; i++) {
+        if (Breakpoints[i] == addr) {
+            return BreakpointCallback(addr);
+        }
+    }
+
+    return 0;
+}
+
+void NDS::DeleteAllBreakpoints() {
+    if (Breakpoints) {
+        delete[] Breakpoints;
+    }
+    BreakpointsCount = 0;
+    Breakpoints = nullptr;
 }
 
 }

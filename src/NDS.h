@@ -556,6 +556,17 @@ public:
 protected:
     explicit NDS(NDSArgs&& args, int type, void* userdata) noexcept;
     virtual void DoSavestateExtra(Savestate* file) {}
+
+public:
+    using BreakpointCallbackDef = std::function<u32(u32)>;
+    void AddBreakpointCallback(u32* addresses, u8 addressCount, BreakpointCallbackDef&& func);
+    void DeleteAllBreakpoints();
+
+    u32 HandleBreakpoint(u32 addr);
+private:
+    u32* Breakpoints = nullptr;
+    u8 BreakpointsCount = 0;
+    BreakpointCallbackDef BreakpointCallback;
 };
 
 }

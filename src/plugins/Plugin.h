@@ -278,7 +278,7 @@ public:
     virtual int delayBeforeStartReplacementBackgroundMusic(u16 bgmId) { return 0; }
 
     void loadBgmRedirections();
-    void refreshBackgroundMusic();
+    virtual void refreshBackgroundMusic();
     std::string getBackgroundMusicName(u16 soundtrackId) const;
     void startBackgroundMusic(u16 bgmId, u8 bgmState);
     void stopBackgroundMusic(u16 fadeOutDuration);

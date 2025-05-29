@@ -684,6 +684,14 @@ void ARMv5::Execute()
                 NextInstr[0] = NextInstr[1];
                 NextInstr[1] = CodeRead32(R[15], false);
 
+                u32 retAddr = NDS.HandleBreakpoint(R[15]);
+                if (retAddr > 0) {
+                    R[15] = retAddr + 8;
+                    CurInstr = CodeRead32(retAddr, false);
+                    NextInstr[0] = CodeRead32(retAddr + 4, false);
+                    NextInstr[1] = CodeRead32(retAddr + 8, false);
+                }
+
                 // actually execute
                 if (CheckCondition(CurInstr >> 28))
                 {
